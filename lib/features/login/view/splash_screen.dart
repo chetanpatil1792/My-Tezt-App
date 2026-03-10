@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-
 import '../../../routes/app_routes.dart';
-import '../controller/PasscodeController.dart';
 import '../controller/login_controller.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -17,7 +15,6 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen>
     with TickerProviderStateMixin {
   final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
-  final PasscodeController passcodeController = Get.put(PasscodeController());
   final LoginController loginController = Get.put(LoginController());
 
   late AnimationController _controller;
@@ -60,20 +57,9 @@ class _SplashScreenState extends State<SplashScreen>
 
   Future<void> checkLoginStatus() async {
     final accessToken = await secureStorage.read(key: 'access_token');
-    final refreshToken = await secureStorage.read(key: 'refresh_token');
 
     if (accessToken != null && accessToken.isNotEmpty) {
-      passcodeController.checkPasscodeStatusAndBiometrics();
-      Get.offAllNamed(
-        passcodeController.isPasscodeSet.value
-            ? AppRoutes.PasscodeLoginView
-            : AppRoutes.CreatePasscodeView,
-      );
-    } else if (refreshToken != null && refreshToken.isNotEmpty) {
-      final success = await loginController.refreshAccessToken(refreshToken);
-      success
-          ? Get.offAllNamed(AppRoutes.PasscodeLoginView)
-          : Get.offAllNamed(AppRoutes.LOGIN);
+      Get.offAllNamed(AppRoutes.DashboardView,);
     } else {
       Get.offAllNamed(AppRoutes.LOGIN);
     }

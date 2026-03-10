@@ -9,7 +9,6 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:safe_device/safe_device.dart';
 import '../../../core/apiUrls/api_urls.dart';
 import '../../../routes/app_routes.dart';
-import 'PasscodeController.dart';
 
 enum LoginStatus { idle, loading, success, error }
 
@@ -32,7 +31,6 @@ class LoginController extends GetxController {
   final storage = GetStorage();
 
   // Passcode Controller instance
-  final PasscodeController passcodeController = Get.put(PasscodeController());
 
   @override
   void onInit() {
@@ -40,111 +38,14 @@ class LoginController extends GetxController {
 
   }
 
-  // final isDeviceSafe = false.obs;
-  //
-  //
-  // Future<void> checkSecurityAndHandleExit() async {
-  //   final BuildContext? context = Get.context;
-  //   if (context == null) {
-  //     print("Error: Context is null, cannot show dialog.");
-  //     return;
-  //   }
-  //
-  //   bool isDevMode = await SafeDevice.isDevelopmentModeEnable;
-  //   bool isMockLoc = await SafeDevice.isMockLocation;
-  //
-  //   String warningTitle = "Security Warning";
-  //   String warningMessage = '';
-  //   bool isUnsafe = false;
-  //
-  //   // 1. Developer Mode check
-  //   if (isDevMode) {
-  //     warningMessage = 'For security reasons, this app will not work with Developer Options enabled. Please go to settings and turn them off.';
-  //     isUnsafe = true;
-  //   }
-  //   // 2. Mock Location check (after or alongside Developer Mode)
-  //   else if (isMockLoc) {
-  //     warningMessage = 'Fake location usage was detected on your device. Please remove any Fake GPS App or close the app.';
-  //     isUnsafe = true;
-  //   }
-  //
-  //   // If any security violation is found
-  //   if (isUnsafe) {
-  //
-  //     // We will wait until the user responds.
-  //
-  //     await showDialog(
-  //       context: context,
-  //       barrierDismissible: false, // Prevents the dialog from being dismissed
-  //       builder: (BuildContext dialogContext) {
-  //         // Use WillPopScope to block the Hardware Back Button
-  //         return WillPopScope(
-  //           onWillPop: () async => false, // Completely blocks the back button
-  //           child: AlertDialog(
-  //             title: Text(warningTitle),
-  //             content: Text(warningMessage),
-  //             actions: [
-  //               // Option 1: Close App (always available)
-  //               TextButton(
-  //                 onPressed: () {
-  //                   Navigator.of(dialogContext).pop();
-  //                   SystemNavigator.pop(); // Close the app
-  //                 },
-  //                 child: Text("Close App"),
-  //               ),
-  //             ],
-  //           ),
-  //         );
-  //       },
-  //     );
-  //
-  //     // If the dialog is popped for any reason (like opening settings),
-  //     // isDeviceSafe will remain false, preventing the app from proceeding.
-  //
-  //   } else {
-  //     // If everything is safe, set isDeviceSafe to true and navigate
-  //     isDeviceSafe.value = true;
-  //     print("Device is safe. Proceeding with application.");
-  //     // Get.offNamed(AppRoutes.home); // Navigate here
-  //   }
-  // }
 
 
   /// ✅ Check if already logged in (based on secure token)
   Future<void> checkLoginStatus() async {
     final accessToken = await secureStorage.read(key: 'access_token');
-    final refreshToken = await secureStorage.read(key: 'refresh_token');
 
     if (accessToken != null && accessToken.isNotEmpty) {
-      // ✅ Access token available → direct biometric/passcode
-      passcodeController.checkPasscodeStatusAndBiometrics();
-
-      if (passcodeController.isPasscodeSet.value) {
-        Get.offAllNamed(AppRoutes.PasscodeLoginView);
-        passcodeController.authenticateWithBiometrics();
-      } else {
-        Get.offAllNamed(AppRoutes.CreatePasscodeView);
-      }
-
-    } else if (refreshToken != null && refreshToken.isNotEmpty) {
-      // 🔁 Access token expired but refresh token available → try refresh
-      print('🔄 Trying to refresh access token using refresh token...');
-      final success = await refreshAccessToken(refreshToken);
-
-      if (success) {
-        print('✅ Token refreshed successfully');
-        passcodeController.checkPasscodeStatusAndBiometrics();
-
-        if (passcodeController.isPasscodeSet.value) {
-          Get.offAllNamed(AppRoutes.PasscodeLoginView);
-          passcodeController.authenticateWithBiometrics();
-        } else {
-          Get.offAllNamed(AppRoutes.CreatePasscodeView);
-        }
-      } else {
-        print('⚠️ Refresh token invalid, redirecting to login...');
-        await logout();
-      }
+      Get.offAllNamed(AppRoutes.DashboardView);
 
     } else {
       // 🚪 No token found → Go to Login screen
@@ -153,30 +54,6 @@ class LoginController extends GetxController {
     }
   }
 
-  Future<bool> refreshAccessToken(String refreshToken) async {
-    try {
-      final response = await http.post(
-        Uri.parse(ApiUrls.refreshToken),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({"refreshToken": refreshToken}),
-      );
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        print('🔁 Refresh API Response: $data');
-
-        if (data['result'] == 'success') {
-          final newAccessToken = data['token'];
-          await secureStorage.write(key: 'access_token', value: newAccessToken);
-          return true;
-        }
-      }
-      return false;
-    } catch (e) {
-      print('❌ Error refreshing token: $e');
-      return false;
-    }
-  }
 
 
 
@@ -206,66 +83,36 @@ class LoginController extends GetxController {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        print('🟢 Login API Response: $data');
 
-        if (data['result'] == 'success' && data['userInfo'] != null) {
-          final userInfo = Map<String, dynamic>.from(data['userInfo']);
-          final accessToken = data['token'];
-          final refreshToken = data['refreshToken'];
+        // 🎯 Direct check: Agar token hai, toh login success
+        if (data['token'] != null) {
 
-          if (accessToken != null && refreshToken != null) {
-            /// 🔸 Store securely
-            await secureStorage.write(key: 'access_token', value: accessToken);
-            await secureStorage.write(key: 'refresh_token', value: refreshToken);
-            await secureStorage.write(
-                key: 'user_info', value: jsonEncode(userInfo));
+          // Sab kuch string mein convert karke save karo (Secure Storage requirement)
+          await secureStorage.write(key: 'access_token', value: data['token'].toString());
+          await secureStorage.write(key: 'userName', value: data['userName'].toString());
+          await secureStorage.write(key: 'role', value: data['role'].toString());
+          await secureStorage.write(key: 'userId', value: data['id'].toString());
 
-            await storage.write('userInfo', userInfo);
-
-
-            loginStatus.value = LoginStatus.success;
-
-            /// 🔹 Proceed to passcode or biometric flow
-            passcodeController.checkPasscodeStatusAndBiometrics();
-
-            if (passcodeController.isPasscodeSet.value) {
-              Get.offAllNamed(AppRoutes.PasscodeLoginView);
-            } else {
-              Get.offAllNamed(AppRoutes.CreatePasscodeView);
-            }
-
-            print('✅ Login successful — refresh tokens stored securely $refreshToken');
-            print('✅ Login successful — tokens stored securely $accessToken');
-          } else {
-            throw Exception('Token fields missing in response');
+          // labId null ho sakta hai, isliye safety check
+          if (data['labId'] != null) {
+            await secureStorage.write(key: 'labId', value: data['labId'].toString());
           }
+
+          loginStatus.value = LoginStatus.success;
+          Get.snackbar('Succes', 'Login Success');
+
+          Get.offAllNamed(AppRoutes.DashboardView);
         } else {
           loginStatus.value = LoginStatus.error;
-          message.value = data['message'] ?? 'Invalid credentials';
-          Get.snackbar(
-            'Error',
-            message.value,
-            backgroundColor: Colors.red.shade400,
-            colorText: Colors.white,
-          );
+          Get.snackbar('Error', 'Invalid Response from Server');
         }
       } else {
         loginStatus.value = LoginStatus.error;
-        Get.snackbar(
-          'Error',
-          'Server error: ${response.statusCode}',
-          backgroundColor: Colors.red.shade400,
-          colorText: Colors.white,
-        );
+        Get.snackbar('Error', 'Invalid Username or Password');
       }
     } catch (e) {
       loginStatus.value = LoginStatus.error;
-      Get.snackbar(
-        'Error',
-        'Something went wrong: $e',
-        backgroundColor: Colors.red.shade400,
-        colorText: Colors.white,
-      );
+      Get.snackbar('Error', 'Connection failed: $e');
     } finally {
       if (loginStatus.value != LoginStatus.success) {
         loginStatus.value = LoginStatus.idle;

@@ -1,257 +1,13 @@
-//
-// import 'package:flutter/material.dart';
-// import 'package:flutter_svg/flutter_svg.dart';
-// import 'package:get/get.dart';
-// import '../controller/login_controller.dart';
-// import 'forgetRemotePass.dart';
-//
-//
-// class LoginScreen extends StatelessWidget {
-//   LoginScreen({super.key});
-//
-//   final LoginController controller = Get.put(LoginController());
-//   final _formKey = GlobalKey<FormState>();
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       backgroundColor: Colors.white,
-//       body: Padding(
-//         padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-//         child: Stack(
-//           children: [
-//             // Background design (unchanged)
-//             SingleChildScrollView(
-//               child: Column(
-//                 children: [
-//                   Row(
-//                     mainAxisAlignment: MainAxisAlignment.start,
-//                     children: [
-//                       Opacity(
-//                         opacity: 0.05,
-//                         child: Image.asset("assets/images/bargraph2.png", width: 130),
-//                       ),
-//                     ],
-//                   ),
-//                   Row(
-//                     mainAxisAlignment: MainAxisAlignment.end,
-//                     children: [
-//                       Opacity(
-//                         opacity: 0.09,
-//                         child: SvgPicture.asset("assets/images/onbard6.svg", width: 130),
-//                       ),
-//                     ],
-//                   ),
-//                   const SizedBox(height: 390),
-//                   Row(
-//                     mainAxisAlignment: MainAxisAlignment.start,
-//                     children: [
-//                       Opacity(
-//                         opacity: 0.07,
-//                         child: SvgPicture.asset("assets/images/graph3.svg", width: 100),
-//                       ),
-//                     ],
-//                   ),
-//                 ],
-//               ),
-//             ),
-//
-//             // Decorative elements
-//             Align(
-//               alignment: const Alignment(-0.6, -0.5),
-//               child: Opacity(
-//                 opacity: 0.06,
-//                 child: SvgPicture.asset("assets/images/svg1.svg", width: 120),
-//               ),
-//             ),
-//
-//             // Login form container
-//             Center(
-//               child: Container(
-//                 alignment: Alignment.center,
-//                 decoration: BoxDecoration(
-//                   color: const Color(0xff202a44),
-//                   borderRadius: BorderRadius.circular(12),
-//                 ),
-//                 height: 375,
-//                 width: 500,
-//                 padding: const EdgeInsets.symmetric(horizontal: 20),
-//                 child: SingleChildScrollView(
-//                   child: Form(
-//                     key: _formKey,
-//                     child: Column(
-//                       children: [
-//                         const SizedBox(height: 20),
-//                         const Text(
-//                           "Login",
-//                           style: TextStyle(
-//                             fontSize: 35,
-//                             color: Colors.white,
-//                             fontWeight: FontWeight.bold,
-//                           ),
-//                         ),
-//                         const SizedBox(height: 10),
-//
-//                         // Username
-//                         TextFormField(
-//                           controller: controller.usernameController,
-//                           decoration: InputDecoration(
-//                             fillColor: Colors.white,
-//                             filled: true,
-//                             hintText: "UserName",
-//                             border: OutlineInputBorder(
-//                               borderRadius: BorderRadius.circular(10),
-//                             ),
-//                             hintStyle: const TextStyle(
-//                               color: Color(0xff202a44),
-//                               fontFamily: "Poppins",
-//                             ),
-//                             prefixIcon: const Icon(
-//                               Icons.person,
-//                               color: Color(0xff202a44),
-//                             ),
-//                           ),
-//                           onChanged: (value) => controller.userName.value = value,
-//                           validator: (value) =>
-//                           value!.isEmpty ? 'Enter User Name' : null,
-//                         ),
-//                         const SizedBox(height: 20),
-//
-//                         // Password
-//                         Obx(() => TextFormField(
-//                           controller: controller.passwordController,
-//                           obscureText: !controller.isPasswordVisible.value,
-//                           decoration: InputDecoration(
-//                             hintText: "Password",
-//                             suffixIcon: IconButton(
-//                               onPressed: () {
-//                                 controller.isPasswordVisible.value =
-//                                 !controller.isPasswordVisible.value;
-//                               },
-//                               icon: Icon(
-//                                 controller.isPasswordVisible.value
-//                                     ? Icons.visibility
-//                                     : Icons.visibility_off,
-//                                 color: const Color(0xff202a44),
-//                               ),
-//                             ),
-//                             fillColor: Colors.white,
-//                             filled: true,
-//                             border: OutlineInputBorder(
-//                               borderRadius: BorderRadius.circular(10),
-//                             ),
-//                             hintStyle: const TextStyle(
-//                               color: Color(0xff202a44),
-//                               fontFamily: "Poppins",
-//                             ),
-//                             prefixIcon: const Icon(
-//                               Icons.lock,
-//                               color: Color(0xff202a44),
-//                             ),
-//                           ),
-//                           onChanged: (value) => controller.password.value = value,
-//                           validator: (value) =>
-//                           value!.isEmpty ? 'Enter password' : null,
-//                         )),
-//                         const SizedBox(height: 20),
-//
-//                         // Login button
-//                         Obx(
-//                               () => SizedBox(
-//                             height: 50,
-//                             width: double.infinity,
-//                             child: ElevatedButton(
-//                               style: ElevatedButton.styleFrom(
-//                                 side: const BorderSide(color: Colors.white),
-//                                 shape: RoundedRectangleBorder(
-//                                   borderRadius: BorderRadius.circular(10),
-//                                 ),
-//                                 backgroundColor: const Color(0xff202a44),
-//                               ),
-//                               onPressed: controller.loginStatus.value == LoginStatus.loading
-//                                   ? null // disables the button while loading
-//                                   : () async {
-//                                 if (_formKey.currentState!.validate()) {
-//                                   await controller.login();
-//                                 }
-//                               },
-//                               child: controller.loginStatus.value == LoginStatus.loading
-//                                   ? const SizedBox(
-//                                 width: 24,
-//                                 height: 24,
-//                                 child: CircularProgressIndicator(
-//                                   color: Colors.white,
-//                                   strokeWidth: 2,
-//                                 ),
-//                               )
-//                                   : const Text(
-//                                 "LOGIN",
-//                                 style: TextStyle(
-//                                   color: Colors.white,
-//                                   fontSize: 20,
-//                                   fontWeight: FontWeight.w500,
-//                                 ),
-//                               ),
-//                             ),
-//                           ),
-//                         ),
-//                         const SizedBox(height: 20),
-//
-//                         // Forgot Password
-//                         Row(
-//                           mainAxisAlignment: MainAxisAlignment.end,
-//                           children: [
-//                             GestureDetector(
-//                               onTap: () => Get.to(() => const ForgotPassword()),
-//                               child: const Text(
-//                                 "Forgot your password?",
-//                                 style: TextStyle(color: Colors.white),
-//                               ),
-//                             ),
-//                           ],
-//                         ),
-//                       ],
-//                     ),
-//                   ),
-//                 ),
-//               ),
-//             ),
-//             // Decorations
-//             Align(
-//               alignment: const Alignment(0.9, 0.8),
-//               child: Opacity(
-//                 opacity: 0.05,
-//                 child: SvgPicture.asset("assets/images/graph6.svg", width: 150),
-//               ),
-//             ),
-//             Align(
-//               alignment: Alignment.bottomCenter,
-//               child: Opacity(
-//                 opacity: 0.05,
-//                 child: Image.asset("assets/images/barchart.png", width: 80),
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
-//
-//
-//
-
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:my_tezt/routes/app_routes.dart';
 import '../controller/login_controller.dart';
-import 'forgetRemotePass.dart';
 
-/// 🎨 Light Theme Colors
-const kBgColor = Color(0xffF5F7FB);
-const kPrimary = Color(0xff4F8CFF);
-const kTextDark = Color(0xff2E3A59);
-const kInputFill = Color(0xffEEF1F7);
+/// 🎨 Clean & Minimal Lab Colors
+const kPrimary = Color(0xff2A5C82); // Professional Blue
+const kScaffoldBg = Color(0xffFDFDFD); // Off White
+const kTextFieldBg = Color(0xffF4F7F9);
+const kTextGrey = Color(0xff64748B);
 
 class LoginScreen extends StatelessWidget {
   LoginScreen({super.key});
@@ -262,259 +18,163 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: kBgColor,
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-        child: Stack(
-          children: [
-            /// 🔹 Background decorations (same as before)
-            SingleChildScrollView(
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
+      backgroundColor: kScaffoldBg,
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 30),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // 🔬 Minimal Icon
+                const Icon(
+                  Icons.biotech_outlined,
+                  size: 60,
+                  color: kPrimary,
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  "Lab Booking",
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.5,
+                    color: Color(0xff1E293B),
+                  ),
+                ),
+                const Text(
+                  "Please login to your account",
+                  style: TextStyle(color: kTextGrey, fontSize: 14),
+                ),
+                const SizedBox(height: 50),
+
+                Form(
+                  key: _formKey,
+                  child: Column(
                     children: [
-                      Opacity(
-                        opacity: 0.06,
-                        child: Image.asset(
-                          "assets/images/bargraph2.png",
-                          width: 130,
+                      // User ID Field
+                      _simpleTextField(
+                        hint: "Patient or Staff ID",
+                        icon: Icons.person_outline,
+                        controller: controller.usernameController,
+                        onChanged: (val) => controller.userName.value = val,
+                        validator: (val) => val!.isEmpty ? 'Required' : null,
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      // Password Field
+                      Obx(() => _simpleTextField(
+                        hint: "Password",
+                        icon: Icons.lock_open_rounded,
+                        isPassword: true,
+                        obscureText: !controller.isPasswordVisible.value,
+                        controller: controller.passwordController,
+                        onChanged: (val) => controller.password.value = val,
+                        togglePassword: () => controller.isPasswordVisible.toggle(),
+                        validator: (val) => val!.isEmpty ? 'Required' : null,
+                      )),
+
+                      const SizedBox(height: 10),
+
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton(
+                          onPressed: () {
+                            Get.toNamed(AppRoutes.register);
+                          },
+                          child: const Text("Don’t have an account? Create account",
+                              style: TextStyle(color: kPrimary, fontSize: 13)),
                         ),
                       ),
+
+                      const SizedBox(height: 30),
+
+                      // 🚀 Simple Login Button
+                      Obx(() => SizedBox(
+                        width: double.infinity,
+                        height: 52,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: kPrimary,
+                            foregroundColor: Colors.white,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          onPressed: controller.loginStatus.value == LoginStatus.loading
+                              ? null
+                              : () async {
+                            if (_formKey.currentState!.validate()) {
+                              await controller.login();
+                            }
+                          },
+                          child: controller.loginStatus.value == LoginStatus.loading
+                              ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                          )
+                              : const Text("LOGIN",
+                              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                        ),
+                      )),
                     ],
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Opacity(
-                        opacity: 0.08,
-                        child: SvgPicture.asset(
-                          "assets/images/onbard6.svg",
-                          width: 130,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 390),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Opacity(
-                        opacity: 0.07,
-                        child: SvgPicture.asset(
-                          "assets/images/graph3.svg",
-                          width: 100,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-
-            Align(
-              alignment: const Alignment(-0.6, -0.5),
-              child: Opacity(
-                opacity: 0.06,
-                child: SvgPicture.asset(
-                  "assets/images/svg1.svg",
-                  width: 120,
                 ),
-              ),
+
+                const SizedBox(height: 60),
+
+              ],
             ),
+          ),
+        ),
+      ),
+    );
+  }
 
-            /// 🔹 Login Card
-            Center(
-              child: Container(
-                height: 375,
-                width: 500,
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.08),
-                      blurRadius: 20,
-                      offset: const Offset(0, 10),
-                    ),
-                  ],
-                ),
-                child: SingleChildScrollView(
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      children: [
-                        const SizedBox(height: 25),
-
-                        /// 🔹 Title
-                        const Text(
-                          "Login",
-                          style: TextStyle(
-                            fontSize: 32,
-                            color: kTextDark,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-
-                        const SizedBox(height: 25),
-
-                        /// 🔹 Username
-                        TextFormField(
-                          controller: controller.usernameController,
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: kInputFill,
-                            hintText: "User Name",
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide.none,
-                            ),
-                            prefixIcon: const Icon(
-                              Icons.person,
-                              color: kPrimary,
-                            ),
-                          ),
-                          onChanged: (value) =>
-                          controller.userName.value = value,
-                          validator: (value) =>
-                          value!.isEmpty ? 'Enter User Name' : null,
-                        ),
-
-                        const SizedBox(height: 20),
-
-                        /// 🔹 Password
-                        Obx(
-                              () => TextFormField(
-                            controller: controller.passwordController,
-                            obscureText:
-                            !controller.isPasswordVisible.value,
-                            decoration: InputDecoration(
-                              filled: true,
-                              fillColor: kInputFill,
-                              hintText: "Password",
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide.none,
-                              ),
-                              prefixIcon: const Icon(
-                                Icons.lock,
-                                color: kPrimary,
-                              ),
-                              suffixIcon: IconButton(
-                                icon: Icon(
-                                  controller.isPasswordVisible.value
-                                      ? Icons.visibility
-                                      : Icons.visibility_off,
-                                  color: kPrimary,
-                                ),
-                                onPressed: () {
-                                  controller.isPasswordVisible.value =
-                                  !controller.isPasswordVisible.value;
-                                },
-                              ),
-                            ),
-                            onChanged: (value) =>
-                            controller.password.value = value,
-                            validator: (value) =>
-                            value!.isEmpty ? 'Enter password' : null,
-                          ),
-                        ),
-
-                        const SizedBox(height: 25),
-
-                        /// 🔹 Login Button
-                        Obx(
-                              () => SizedBox(
-                            height: 50,
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: kPrimary,
-                                elevation: 4,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                              onPressed: controller.loginStatus.value ==
-                                  LoginStatus.loading
-                                  ? null
-                                  : () async {
-                                if (_formKey.currentState!
-                                    .validate()) {
-                                  await controller.login();
-                                }
-                              },
-                              child: controller.loginStatus.value ==
-                                  LoginStatus.loading
-                                  ? const SizedBox(
-                                width: 24,
-                                height: 24,
-                                child: CircularProgressIndicator(
-                                  color: Colors.white,
-                                  strokeWidth: 2,
-                                ),
-                              )
-                                  : const Text(
-                                "LOGIN",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        const SizedBox(height: 20),
-
-                        /// 🔹 Forgot Password
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            GestureDetector(
-                              onTap: () =>
-                                  Get.to(() => const ForgotPassword()),
-                              child: const Text(
-                                "Forgot your password?",
-                                style: TextStyle(
-                                  color: kPrimary,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-
-            /// 🔹 Bottom decorations
-            Align(
-              alignment: const Alignment(0.9, 0.8),
-              child: Opacity(
-                opacity: 0.05,
-                child: SvgPicture.asset(
-                  "assets/images/graph6.svg",
-                  width: 150,
-                ),
-              ),
-            ),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Opacity(
-                opacity: 0.05,
-                child: Image.asset(
-                  "assets/images/barchart.png",
-                  width: 80,
-                ),
-              ),
-            ),
-          ],
+  // 📝 Helper for Simple Text Fields
+  Widget _simpleTextField({
+    required String hint,
+    required IconData icon,
+    required TextEditingController controller,
+    required Function(String) onChanged,
+    required String? Function(String?) validator,
+    bool isPassword = false,
+    bool obscureText = false,
+    VoidCallback? togglePassword,
+  }) {
+    return TextFormField(
+      controller: controller,
+      obscureText: obscureText,
+      onChanged: onChanged,
+      validator: validator,
+      style: const TextStyle(fontSize: 15),
+      decoration: InputDecoration(
+        hintText: hint,
+        hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
+        prefixIcon: Icon(icon, color: kTextGrey, size: 20),
+        suffixIcon: isPassword
+            ? IconButton(
+            icon: Icon(obscureText ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                color: kTextGrey, size: 20),
+            onPressed: togglePassword)
+            : null,
+        filled: true,
+        fillColor: kTextFieldBg,
+        contentPadding: const EdgeInsets.symmetric(vertical: 16),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.grey.shade200),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: kPrimary, width: 1),
         ),
       ),
     );

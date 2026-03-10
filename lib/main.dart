@@ -4,16 +4,17 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:my_tezt/routes/app_pages.dart';
 import 'package:my_tezt/routes/app_routes.dart';
-
+import 'package:screen_protector/screen_protector.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // await setupSecurity();
   disableSSLCertValidation();
   await GetStorage.init();
   runApp(const MyApp());
 }
 
-// Function to disable SSL certificate validation (use with caution)
+
 void disableSSLCertValidation() {
   HttpOverrides.global = MyHttpOverrides();
 }
