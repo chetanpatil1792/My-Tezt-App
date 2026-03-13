@@ -19,27 +19,32 @@ class Dashboard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: lightBg,
-      body: CustomScrollView(
-        physics: const BouncingScrollPhysics(),
-        slivers: [
-          _sliverPremiumAppBar(controller),
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(14, 0, 14, 22),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                _healthAnalytics().animate().fadeIn(delay: 200.ms),
-                const SizedBox(height: 10),
-                _healthScore().animate().scale(delay: 300.ms, curve: Curves.easeOutBack),
-                const SizedBox(height: 16),
-                _sectionTitle("Our Services"),
-                _quickActions().animate().fadeIn(duration: 500.ms).slideY(begin: 0.1),
-                const SizedBox(height: 20),
-                _medicineReminder(),
-                const SizedBox(height: 40),
-              ]),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await controller.refreshData();
+         },
+        child: CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            _sliverPremiumAppBar(controller),
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(14, 0, 14, 22),
+              sliver: SliverList(
+                delegate: SliverChildListDelegate([
+                  _healthAnalytics().animate().fadeIn(delay: 200.ms),
+                  const SizedBox(height: 10),
+                  _healthScore().animate().scale(delay: 300.ms, curve: Curves.easeOutBack),
+                  const SizedBox(height: 16),
+                  _sectionTitle("Our Services"),
+                  _quickActions().animate().fadeIn(duration: 500.ms).slideY(begin: 0.1),
+                  const SizedBox(height: 20),
+                  _medicineReminder(),
+                  const SizedBox(height: 40),
+                ]),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -163,22 +168,56 @@ class Dashboard extends StatelessWidget {
         _actionTile(Icons.biotech, "Labs", primaryTeal, onTap: () => Get.toNamed(AppRoutes.searchLabsScreen)),
         _actionTile(Icons.video_call, "Doctor", primaryLightBlue, onTap: () => Get.toNamed(AppRoutes.searchDoctorsScreen)),
         _actionTile(Icons.description, "Reports", warningYellow, onTap: () => Get.toNamed(AppRoutes.reportsListPage)),
-        _actionTile(Icons.calendar_month, "Cart", accentTeal, onTap: () => Get.toNamed(AppRoutes.cartScreen)),
-        _actionTile(Icons.favorite_border, "Wishlist", errorRed, onTap: () => Get.toNamed(AppRoutes.wishlistScreen)),
+        Obx(() => _actionTile(
+            Icons.calendar_month,
+            "Cart",
+            accentTeal,
+            badgeCount: controller.cartCount.value,
+            onTap: () => Get.toNamed(AppRoutes.cartScreen)
+        )),
+        Obx(() => _actionTile(
+            Icons.favorite_border,
+            "Wishlist",
+            errorRed,
+            badgeCount: controller.wishlistCount.value,
+            onTap: () => Get.toNamed(AppRoutes.wishlistScreen)
+        )),
         _actionTile(Icons.shopping_cart, "Bookings", primaryLight, onTap: () => Get.toNamed(AppRoutes.bookingScreen)),
       ],
     );
   });
 
-  Widget _actionTile(IconData icon, String label, Color color, {VoidCallback? onTap}) => InkWell(
-    onTap: onTap, borderRadius: BorderRadius.circular(12),
-    child: Container(
-      decoration: _cardStyle(),
-      child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-        Icon(icon, color: color, size: 28),
-        const SizedBox(height: 6),
-        Text(label, style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w600)),
-      ]),
+
+  Widget _actionTile(IconData icon, String label, Color color, {VoidCallback? onTap, int badgeCount = 0}) => InkWell(
+    onTap: onTap,
+    borderRadius: BorderRadius.circular(12),
+    child: Stack( // Badge dikhane ke liye Stack use kiya
+      children: [
+        Container(
+          width: double.infinity,
+          decoration: _cardStyle(),
+          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+            Icon(icon, color: color, size: 28),
+            const SizedBox(height: 6),
+            Text(label, style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w600)),
+          ]),
+        ),
+        if (badgeCount > 0)
+          Positioned(
+            right: 5,
+            top: 2,
+            child: Container(
+              padding: const EdgeInsets.all(4),
+              decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
+              constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
+              child: Text(
+                badgeCount > 99 ? "99+" : badgeCount.toString(),
+                style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+      ],
     ),
   );
 

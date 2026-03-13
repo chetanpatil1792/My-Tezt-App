@@ -24,12 +24,43 @@ class DashboardController extends GetxController {
 
   // Toggles (Functional)
   RxBool medicineReminder = true.obs;
-
-  @override
+  RxInt wishlistCount = 0.obs;
+  RxInt cartCount = 0.obs;
+    @override
   void onInit() {
     super.onInit();
     _loadSettings();
     fetchProfileData();
+    fetchWishlistCount();
+    fetchCartCount();
+  }
+
+  Future<void> refreshData() async {
+    await fetchProfileData();
+    await fetchWishlistCount();
+    await fetchCartCount();
+  }
+
+  Future<void> fetchCartCount() async {
+    try {
+      final response = await _apiClient.get(Uri.parse("${ApiUrls.baseUrl}patient/cart"));
+
+      if (response.statusCode == 200) {
+        List data = json.decode(response.body);
+        int total = 0;
+
+        for (var item in data) {
+          // Tests count + Packages count ka sum
+          int testsLen = (item['tests'] as List?)?.length ?? 0;
+          int packagesLen = (item['packages'] as List?)?.length ?? 0;
+          total += (testsLen + packagesLen);
+        }
+
+        cartCount.value = total;
+      }
+    } catch (e) {
+      print("Cart Count Error: $e");
+    }
   }
 
   void _loadSettings() {
@@ -64,21 +95,40 @@ class DashboardController extends GetxController {
 
 
 
-  void fetchProfileData() async {
+  Future<void> fetchProfileData() async {
     try {
-
-      final response =
-      await _apiClient.get(Uri.parse(ApiUrls.patientProfileDetails));
+      final response = await _apiClient.get(Uri.parse(ApiUrls.patientProfileDetails));
 
       if (response.statusCode == 200) {
         var detailsJson = json.decode(response.body);
         profile.value = detailsJson;
         userName.value = "${detailsJson['firstName'] ?? ''} ${detailsJson['lastName'] ?? ''}";
         profileUrl.value = "${ApiUrls.baseUrlImage}${detailsJson['profileImage'] ?? ''}";
-        print(profileUrl.value);
       }
     } catch (e) {
-      Get.snackbar("Error", "Fetch failed: $e");
+      print("Profile Fetch Error: $e");
+    }
+  }
+
+  Future<void> fetchWishlistCount() async {
+    try {
+      final response = await _apiClient.get(Uri.parse("${ApiUrls.baseUrl}patient/WishList/GetWishList"));
+
+      if (response.statusCode == 200) {
+        List data = json.decode(response.body);
+        int total = 0;
+
+        for (var item in data) {
+          // Tests count + Packages count ka sum
+          int testsLen = (item['tests'] as List?)?.length ?? 0;
+          int packagesLen = (item['packages'] as List?)?.length ?? 0;
+          total += (testsLen + packagesLen);
+        }
+
+        wishlistCount.value = total;
+      }
+    } catch (e) {
+      print("Wishlist Count Error: $e");
     }
   }
 
