@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -17,34 +19,57 @@ class Dashboard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: lightBg,
-      body: RefreshIndicator(
-        onRefresh: () async {
-          await controller.refreshData();
-         },
-        child: CustomScrollView(
-          physics: const BouncingScrollPhysics(),
-          slivers: [
-            _sliverPremiumAppBar(controller),
-            SliverPadding(
-              padding: const EdgeInsets.fromLTRB(14, 0, 14, 22),
-              sliver: SliverList(
-                delegate: SliverChildListDelegate([
-                  _healthAnalytics().animate().fadeIn(delay: 200.ms),
-                  const SizedBox(height: 10),
-                  _healthScore().animate().scale(delay: 300.ms, curve: Curves.easeOutBack),
-                  const SizedBox(height: 16),
-                  _sectionTitle("Our Services"),
-                  _quickActions().animate().fadeIn(duration: 500.ms).slideY(begin: 0.1),
-                  const SizedBox(height: 20),
-                  _medicineReminder(),
-                  const SizedBox(height: 40),
-                ]),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        _showExitConfirmation();
+      },
+      child: Scaffold(
+        backgroundColor: lightBg,
+        body: RefreshIndicator(
+          onRefresh: () async => await controller.refreshData(),
+          child: CustomScrollView(
+            physics: const BouncingScrollPhysics(),
+            slivers: [
+              _sliverPremiumAppBar(controller),
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(14, 0, 14, 22),
+                sliver: SliverList(
+                  delegate: SliverChildListDelegate([
+                    _healthAnalytics().animate().fadeIn(delay: 200.ms),
+                    const SizedBox(height: 10),
+                    _healthScore().animate().scale(delay: 300.ms, curve: Curves.easeOutBack),
+                    const SizedBox(height: 16),
+                    _sectionTitle("Our Services"),
+                    _quickActions().animate().fadeIn(duration: 500.ms).slideY(begin: 0.1),
+                    const SizedBox(height: 20),
+                    _medicineReminder(),
+                    const SizedBox(height: 40),
+                  ]),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
+      ),
+    );
+  }
+
+  void _showExitConfirmation() {
+    Get.dialog(
+      AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        title: Text("Exit App", style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
+        content: Text("Are you sure you want to exit?", style: GoogleFonts.poppins()),
+        actions: [
+          TextButton(onPressed: () => Get.back(), child: const Text("Cancel", style: TextStyle(color: Colors.grey))),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+            onPressed: () => GetPlatform.isAndroid ? SystemNavigator.pop() : exit(0),
+            child: const Text("Exit", style: TextStyle(color: Colors.white)),
+          ),
+        ],
       ),
     );
   }
@@ -53,12 +78,8 @@ class Dashboard extends StatelessWidget {
     const double expandedH = 180;
     const double collapsedH = kToolbarHeight + 10;
     return SliverAppBar(
-      pinned: true,
-      expandedHeight: expandedH,
-      collapsedHeight: collapsedH,
-      backgroundColor: Colors.transparent,
-      elevation: 0,
-      automaticallyImplyLeading: false,
+      pinned: true, expandedHeight: expandedH, collapsedHeight: collapsedH,
+      backgroundColor: Colors.transparent, elevation: 0, automaticallyImplyLeading: false,
       flexibleSpace: LayoutBuilder(
         builder: (context, constraints) {
           double t = ((constraints.maxHeight - collapsedH) / (expandedH - collapsedH)).clamp(0.0, 1.0);
@@ -155,7 +176,7 @@ class Dashboard extends StatelessWidget {
     child: Row(children: [
       const Icon(Icons.search, color: secondaryText, size: 22),
       const SizedBox(width: 10),
-      Expanded(child: Text("Search tests, doctors...", style: GoogleFonts.poppins(color: secondaryText, fontSize: 13))),
+      Expanded(child: Text("Search tests, labs...", style: GoogleFonts.poppins(color: secondaryText, fontSize: 13))),
       const Icon(Icons.tune_rounded, color: primaryTeal, size: 20),
     ]),
   );
@@ -166,36 +187,31 @@ class Dashboard extends StatelessWidget {
       crossAxisCount: constraints.maxWidth > 600 ? 6 : 4, mainAxisSpacing: 12, crossAxisSpacing: 12,
       children: [
         _actionTile(Icons.biotech, "Labs", primaryTeal, onTap: () => Get.toNamed(AppRoutes.searchLabsScreen)),
-        _actionTile(Icons.video_call, "Doctor", primaryLightBlue, onTap: () => Get.toNamed(AppRoutes.searchDoctorsScreen)),
+        // _actionTile(Icons.video_call, "Doctor", primaryLightBlue, onTap: () => Get.toNamed(AppRoutes.searchDoctorsScreen)),
         _actionTile(Icons.description, "Reports", warningYellow, onTap: () => Get.toNamed(AppRoutes.reportsListPage)),
-        Obx(() => _actionTile(
-            Icons.calendar_month,
-            "Cart",
-            accentTeal,
-            badgeCount: controller.cartCount.value,
-            onTap: () => Get.toNamed(AppRoutes.cartScreen)
-        )),
-        Obx(() => _actionTile(
-            Icons.favorite_border,
-            "Wishlist",
-            errorRed,
-            badgeCount: controller.wishlistCount.value,
-            onTap: () => Get.toNamed(AppRoutes.wishlistScreen)
-        )),
+        Obx(() => _actionTile(Icons.calendar_month, "Cart", accentTeal, badgeCount: controller.cartCount.value, onTap: () => Get.toNamed(AppRoutes.cartScreen))),
+        Obx(() => _actionTile(Icons.favorite_border, "Wishlist", errorRed, badgeCount: controller.wishlistCount.value, onTap: () => Get.toNamed(AppRoutes.wishlistScreen))),
         _actionTile(Icons.shopping_cart, "Bookings", primaryLight, onTap: () => Get.toNamed(AppRoutes.bookingScreen)),
+        _actionTile(Icons.upcoming, "Upcoming", primaryLight, onTap: () => Get.toNamed(AppRoutes.UpcomingAppointmentsPage)),
+        _actionTile(Icons.storage, "Storage", primaryLight, onTap: () => Get.toNamed(AppRoutes.StorageScreen)),
+        Obx(() => _actionTile(
+            Icons.notification_add, "Notification", primaryLight,
+            badgeCount: controller.notificationCount.value,
+            onTap: () async {
+              await Get.toNamed(AppRoutes.NotificationPage);
+              controller.fetchNotificationCount();
+            }
+        )),
       ],
     );
   });
 
-
   Widget _actionTile(IconData icon, String label, Color color, {VoidCallback? onTap, int badgeCount = 0}) => InkWell(
-    onTap: onTap,
-    borderRadius: BorderRadius.circular(12),
-    child: Stack( // Badge dikhane ke liye Stack use kiya
+    onTap: onTap, borderRadius: BorderRadius.circular(12),
+    child: Stack(
       children: [
         Container(
-          width: double.infinity,
-          decoration: _cardStyle(),
+          width: double.infinity, decoration: _cardStyle(),
           child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
             Icon(icon, color: color, size: 28),
             const SizedBox(height: 6),
@@ -204,8 +220,7 @@ class Dashboard extends StatelessWidget {
         ),
         if (badgeCount > 0)
           Positioned(
-            right: 5,
-            top: 2,
+            right: 5, top: 2,
             child: Container(
               padding: const EdgeInsets.all(4),
               decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
@@ -249,8 +264,7 @@ class Dashboard extends StatelessWidget {
   Widget _healthScore() => Container(
     padding: const EdgeInsets.all(20),
     decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(24),
+      color: Colors.white, borderRadius: BorderRadius.circular(24),
       boxShadow: [BoxShadow(color: primaryTeal.withOpacity(0.08), blurRadius: 20, offset: const Offset(0, 10))],
       border: Border.all(color: Colors.white.withOpacity(0.5)),
     ),
@@ -265,11 +279,7 @@ class Dashboard extends StatelessWidget {
         const SizedBox(height: 2),
         Text("Better than 80% of users", style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w400, color: secondaryText.withOpacity(0.8))),
       ])),
-      Container(
-        padding: const EdgeInsets.all(8),
-        decoration: const BoxDecoration(color: Color(0xFFF8FAFC), shape: BoxShape.circle),
-        child: Icon(Icons.arrow_forward_ios_rounded, size: 14, color: primaryTeal),
-      ),
+      Container(padding: const EdgeInsets.all(8), decoration: const BoxDecoration(color: Color(0xFFF8FAFC), shape: BoxShape.circle), child: Icon(Icons.arrow_forward_ios_rounded, size: 14, color: primaryTeal)),
     ]),
   );
 

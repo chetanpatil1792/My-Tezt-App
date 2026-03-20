@@ -26,6 +26,8 @@ class DashboardController extends GetxController {
   RxBool medicineReminder = true.obs;
   RxInt wishlistCount = 0.obs;
   RxInt cartCount = 0.obs;
+  RxInt notificationCount = 0.obs; // Naya variable
+
     @override
   void onInit() {
     super.onInit();
@@ -33,12 +35,32 @@ class DashboardController extends GetxController {
     fetchProfileData();
     fetchWishlistCount();
     fetchCartCount();
+    fetchNotificationCount(); // Initial call
   }
 
   Future<void> refreshData() async {
     await fetchProfileData();
     await fetchWishlistCount();
     await fetchCartCount();
+    await fetchNotificationCount(); // Refresh call
+  }
+
+  Future<void> fetchNotificationCount() async {
+    try {
+      final response = await _apiClient.get(
+        Uri.parse("${ApiUrls.baseUrl}notifications"),
+      );
+
+      if (response.statusCode == 200) {
+        List data = jsonDecode(response.body);
+
+        int unread = data.where((item) => item['isRead'] == false).length;
+
+        notificationCount.value = unread;
+      }
+    } catch (e) {
+      print("Notification Count Error: $e");
+    }
   }
 
   Future<void> fetchCartCount() async {

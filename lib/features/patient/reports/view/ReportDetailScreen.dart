@@ -7,10 +7,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:cross_file/cross_file.dart';
-import '../../../core/constants/appcolors.dart';
 import 'package:flutter/rendering.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:pdf/pdf.dart';
+
+import '../../../../core/constants/appcolors.dart';
 
 class ReportDetailScreen extends StatelessWidget {
   ReportDetailScreen({super.key});
@@ -26,7 +27,7 @@ class ReportDetailScreen extends StatelessWidget {
       appBar: AppBar(
         elevation: 0,
         backgroundColor: const Color(0xFFF2F2F2),
-        iconTheme: const IconThemeData(color: primaryDarkBlue),
+        iconTheme: IconThemeData(color: primaryDarkBlue),
         title: const Text("LAB REPORT"),
         actions: [
           IconButton(

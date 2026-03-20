@@ -7,10 +7,13 @@ import '../features/patient/dashboard/view/Dashboard.dart';
 import '../features/patient/doctor/view/DoctorDetailScreen.dart';
 import '../features/patient/doctor/view/DoctorsSearchScreen.dart';
 import '../features/patient/lab/view/LabsSearchScreen.dart';
+import '../features/patient/notification/view/NotificationPage.dart';
 import '../features/patient/profile/views/ProfileScreen.dart';
+import '../features/patient/profile/views/StorageScreen.dart';
+import '../features/patient/reports/view/ReportDetailScreen.dart';
+import '../features/patient/reports/view/ReportsListPage.dart';
+import '../features/patient/upcoming/view/UpcomingAppointmentsPage.dart';
 import '../features/patient/wishlist/views/WishlistScreen.dart';
-import '../features/reports/view/ReportsListPage.dart';
-import '../features/reports/view/ReportDetailScreen.dart';
 import '../features/login/Binding.dart';
 import '../features/login/view/login_page.dart';
 import '../features/login/view/splash_screen.dart';
@@ -77,6 +80,19 @@ class AppPages {
     GetPage(
       name: AppRoutes.bookingScreen,
       page: () => MyBookingsScreen(),
+    ),
+    GetPage(
+      name: AppRoutes.UpcomingAppointmentsPage,
+      page: () => UpcomingAppointmentsPage(),
+    ),
+
+    GetPage(
+      name: AppRoutes.StorageScreen,
+      page: () => StorageScreen(),
+    ),
+    GetPage(
+      name: AppRoutes.NotificationPage,
+      page: () => NotificationPage(),
     ),
 
 

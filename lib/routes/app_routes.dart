@@ -16,4 +16,6 @@
     static const String cartScreen = '/CartScreen';
     static const String wishlistScreen = '/WishlistScreen';
     static const String bookingScreen = '/BookingScreen';
+    static const String UpcomingAppointmentsPage = '/UpcomingAppointmentsPage';
+    static const String StorageScreen = '/StorageScreen';
   }
