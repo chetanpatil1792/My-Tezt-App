@@ -176,8 +176,7 @@ class Dashboard extends StatelessWidget {
     child: Row(children: [
       const Icon(Icons.search, color: secondaryText, size: 22),
       const SizedBox(width: 10),
-      Expanded(child: Text("Search tests, labs...", style: GoogleFonts.poppins(color: secondaryText, fontSize: 13))),
-      const Icon(Icons.tune_rounded, color: primaryTeal, size: 20),
+      Expanded(child: InkWell(onTap: (){Get.toNamed(AppRoutes.searchLabsScreen);},child: Text("Search tests, labs...", style: GoogleFonts.poppins(color: secondaryText, fontSize: 13)))),
     ]),
   );
 
@@ -188,7 +187,9 @@ class Dashboard extends StatelessWidget {
       children: [
         _actionTile(Icons.biotech, "Labs", primaryTeal, onTap: () => Get.toNamed(AppRoutes.searchLabsScreen)),
         // _actionTile(Icons.video_call, "Doctor", primaryLightBlue, onTap: () => Get.toNamed(AppRoutes.searchDoctorsScreen)),
-        _actionTile(Icons.description, "Reports", warningYellow, onTap: () => Get.toNamed(AppRoutes.reportsListPage)),
+        _actionTile(Icons.description, "Lab Reports", warningYellow, onTap: () => Get.toNamed(AppRoutes.reportsListPage)),
+        _actionTile(Icons.description, "Self Reports", Colors.green, onTap: () => Get.toNamed(AppRoutes.selfReports)),
+        _actionTile(Icons.description, "Upload Rep", Colors.blue, onTap: () => Get.toNamed(AppRoutes.uploadReports)),
         Obx(() => _actionTile(Icons.calendar_month, "Cart", accentTeal, badgeCount: controller.cartCount.value, onTap: () => Get.toNamed(AppRoutes.cartScreen))),
         Obx(() => _actionTile(Icons.favorite_border, "Wishlist", errorRed, badgeCount: controller.wishlistCount.value, onTap: () => Get.toNamed(AppRoutes.wishlistScreen))),
         _actionTile(Icons.shopping_cart, "Bookings", primaryLight, onTap: () => Get.toNamed(AppRoutes.bookingScreen)),

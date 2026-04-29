@@ -10,7 +10,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:my_tezt/core/apiUrls/api_urls.dart';
 import '../../../../core/utils/token_helper.dart';
 
-class ReportsController extends GetxController {
+class SelfReportsController extends GetxController {
   var isLoading = true.obs;
   var allReports = [].obs;
 
@@ -22,17 +22,19 @@ class ReportsController extends GetxController {
     fetchReports();
   }
 
-  // Fetch Reports List
   Future<void> fetchReports() async {
     try {
       isLoading(true);
 
       final response = await _apiClient.get(
-        Uri.parse("${ApiUrls.baseUrl}patient/MyReport/GetPatientReports"),
+        Uri.parse("${ApiUrls.baseUrl}Patient/MyReport/GetSelfUploadedReports"),
       );
 
       if (response.statusCode == 200) {
-        List data = jsonDecode(response.body);
+        final decoded = jsonDecode(response.body);
+
+        List data = decoded['data'];
+
         allReports.assignAll(data);
       }
     } catch (e) {
@@ -42,14 +44,12 @@ class ReportsController extends GetxController {
     }
   }
 
-  // Date Format
   String formatDate(String? dateStr) {
     if (dateStr == null) return "";
     DateTime dt = DateTime.parse(dateStr);
     return DateFormat('dd MMM yyyy').format(dt);
   }
 
-  // Extract File Name
   String getFileName(String path) {
     return path.split('\\').last;
   }

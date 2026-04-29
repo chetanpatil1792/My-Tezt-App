@@ -134,7 +134,14 @@ class DashboardController extends GetxController {
 
   Future<void> fetchWishlistCount() async {
     try {
-      final response = await _apiClient.get(Uri.parse("${ApiUrls.baseUrl}patient/WishList/GetWishList"));
+      // final response = await _apiClient.get(Uri.parse("${ApiUrls.baseUrl}patient/WishList/GetWishListData"));
+
+      // var url = Uri.parse("${ApiUrls.baseUrl}patient/bookings/WishListsearch");
+      var url = Uri.parse("${ApiUrls.baseUrl}patient/WishList/GetWishListData");
+      var body = jsonEncode({"patientId": 34, "userLatitude": 0, "userLongitude": 0});
+
+      final response = await _apiClient.post(url, body: body);
+
 
       if (response.statusCode == 200) {
         List data = json.decode(response.body);

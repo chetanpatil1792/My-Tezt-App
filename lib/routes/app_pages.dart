@@ -12,7 +12,9 @@ import '../features/patient/profile/views/ProfileScreen.dart';
 import '../features/patient/profile/views/StorageScreen.dart';
 import '../features/patient/reports/view/ReportDetailScreen.dart';
 import '../features/patient/reports/view/ReportsListPage.dart';
+import '../features/patient/reports/view/SelfReportsListPage.dart';
 import '../features/patient/upcoming/view/UpcomingAppointmentsPage.dart';
+import '../features/patient/uploadReports/view/UploadReportScreen.dart';
 import '../features/patient/wishlist/views/WishlistScreen.dart';
 import '../features/login/Binding.dart';
 import '../features/login/view/login_page.dart';
@@ -59,6 +61,10 @@ class AppPages {
       page: () => ReportsListPage(),
     ),
     GetPage(
+      name: AppRoutes.selfReports,
+      page: () => SelfReportsListPage(),
+    ),
+    GetPage(
       name: AppRoutes.reportDetailScreen,
       page: () =>   ReportDetailScreen(),
     ),
@@ -93,6 +99,10 @@ class AppPages {
     GetPage(
       name: AppRoutes.NotificationPage,
       page: () => NotificationPage(),
+    ),
+    GetPage(
+      name: AppRoutes.uploadReports,
+      page: () => UploadReportScreen(),
     ),
 
 

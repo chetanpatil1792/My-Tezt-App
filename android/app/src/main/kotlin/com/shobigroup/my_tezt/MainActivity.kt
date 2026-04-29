@@ -1,4 +1,4 @@
-package com.example.my_tezt
+package com.shobigroup.my_tezt
 
 //import android.os.Bundle
 //import android.view.WindowManager.LayoutParams
